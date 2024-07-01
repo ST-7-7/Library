@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const bookForm = document.getElementById('book-form');
-  const libraryDiv = document.querySelector('.library'); // 修改此处
+  const libraryDiv = document.querySelector('.library'); 
 
   let myLibrary = [];
 
@@ -18,6 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function addBookToLibrary(book) {
       myLibrary.push(book);
       renderLibrary();
+  }
+
+  async function fetchBooks() {
+    const response = await fetch('/api/books');
+    const books = await response.json();
+    books.forEach(book => addBookToLibrary(new Book(book.title, book.author, book.pages, book.read)));
   }
 
   function renderLibrary() {
@@ -64,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  bookForm.addEventListener('submit', (e) => {
+  bookForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const title = document.getElementById('title').value;
       const author = document.getElementById('author').value;
@@ -72,8 +78,24 @@ document.addEventListener('DOMContentLoaded', () => {
       const read = document.getElementById('read').checked;
 
       const newBook = new Book(title, author, pages, read);
-      addBookToLibrary(newBook);
+      
+      // 发送数据到后端
+      const response = await fetch('/api/books', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newBook)
+      });
+
+      if (response.ok) {
+        addBookToLibrary(newBook);
+      } else {
+        console.error('Failed to save book');
+      }
 
       bookForm.reset();
   });
+
+  fetchBooks();
 });
