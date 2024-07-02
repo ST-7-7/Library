@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const newBook = new Book(title, author, pages, read);
       
-      // 发送数据到后端
+
       const response = await fetch('/api/books', {
         method: 'POST',
         headers: {
